@@ -23,11 +23,17 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: npm install, build, and test
-        run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+      - name: Enable Corepack (ensures correct Yarn version)
+        run: corepack enable
+
+      - name: Set Yarn network timeout
+        run: yarn config set network-timeout 600000
+
+      - name: yarn install
+        run: yarn install --frozen-lockfile
+
+      - name: yarn build
+        run: yarn build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -47,13 +53,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0B50FD1B51454906B1679B2364E2A263 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D0070F8DA96C4D26B70FB93DB239AA2B }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_19A41E31030C4C9CAD53552C41153402 }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -62,4 +68,3 @@ jobs:
           app-name: 'itmd547-nocobase'
           slot-name: 'Production'
           package: .
-          
