@@ -75,9 +75,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C8ABA697D4B64F4B86FCCBDDEC4AC890 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_14E270883E384832824CF04B60DE8CD5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EB476FBA81CA41B6B722BE5D5D478B80 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_0B50FD1B51454906B1679B2364E2A263 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D0070F8DA96C4D26B70FB93DB239AA2B }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_19A41E31030C4C9CAD53552C41153402 }}
 
       - name: Disable Azure server-side build
         shell: bash
