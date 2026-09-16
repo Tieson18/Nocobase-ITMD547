@@ -32,9 +32,6 @@ jobs:
       - name: yarn install
         run: yarn install --frozen-lockfile
 
-      - name: yarn nocobase install
-        run: yarn nocobase install
-
       - name: yarn build
         run: yarn build
 
@@ -64,31 +61,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_14E270883E384832824CF04B60DE8CD5 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EB476FBA81CA41B6B722BE5D5D478B80 }}
 
-      - name: Disable Azure server-side build
-        shell: bash
-        run: |
-          resource_group="$(az resource list \
-            --name Parlour \
-            --resource-type Microsoft.Web/sites \
-            --query '[0].resourceGroup' \
-            --output tsv)"
-
-          if [ -z "$resource_group" ]; then
-            echo "Unable to find the Azure resource group for Parlour." >&2
-            exit 1
-          fi
-
-          az webapp config appsettings set \
-            --name Parlour \
-            --resource-group "$resource_group" \
-            --settings \
-              APP_PORT=8080 \
-              SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-              ENABLE_ORYX_BUILD=false
-
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'Parlour'
+          app-name: 'itmd547-nocobase'
           slot-name: 'Production'
-          package: deploy-package
+          package: .
