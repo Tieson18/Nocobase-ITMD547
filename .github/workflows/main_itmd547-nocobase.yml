@@ -23,10 +23,15 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: yarn install, nocobase install, and build
+      - name: Enable Corepack (ensures correct Yarn version)
+        run: corepack enable
+
+      - name: Set Yarn network timeout
+        run: yarn config set network-timeout 600000
+
+      - name: yarn install and build
         run: |
           yarn install --frozen-lockfile
-          yarn nocobase install
           yarn build
 
       - name: Upload artifact for deployment job
@@ -55,27 +60,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E87DC99333B741EA9774AF4AE09A48FE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_24ADC0A076DF48B08721C3E5AE83E7FC }}
 
-      - name: Disable Azure server-side build
-        shell: bash
-        run: |
-          resource_group="$(az resource list \
-            --name Parlour \
-            --resource-type Microsoft.Web/sites \
-            --query '[0].resourceGroup' \
-            --output tsv)"
-
-          if [ -z "$resource_group" ]; then
-            echo "Unable to find the Azure resource group for Parlour." >&2
-            exit 1
-          fi
-
-          az webapp config appsettings set \
-            --name Parlour \
-            --resource-group "$resource_group" \
-            --settings \
-              APP_PORT=8080 \
-              SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-              ENABLE_ORYX_BUILD=false
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
