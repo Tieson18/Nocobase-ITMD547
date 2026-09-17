@@ -60,6 +60,32 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E87DC99333B741EA9774AF4AE09A48FE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_24ADC0A076DF48B08721C3E5AE83E7FC }}
 
+      - name: Configure App Service startup
+        shell: bash
+        run: |
+          resource_group="$(az webapp list \
+            --query "[?name=='itmd547-nocobase'].resourceGroup | [0]" \
+            --output tsv)"
+
+          if [ -z "$resource_group" ]; then
+            echo "App Service 'itmd547-nocobase' was not found in the authenticated subscription." >&2
+            exit 1
+          fi
+
+          az webapp config appsettings set \
+            --name itmd547-nocobase \
+            --resource-group "$resource_group" \
+            --settings \
+              APP_ENV=production \
+              APP_PORT=8080 \
+              SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+              ENABLE_ORYX_BUILD=false
+
+          az webapp config set \
+            --name itmd547-nocobase \
+            --resource-group "$resource_group" \
+            --startup-file "npm start"
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
