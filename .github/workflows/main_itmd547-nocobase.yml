@@ -62,6 +62,13 @@ jobs:
 
       - name: Configure App Service startup
         shell: bash
+        env:
+          APP_KEY: ${{ secrets.APP_KEY }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_DATABASE: ${{ secrets.DB_DATABASE }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          INIT_ROOT_PASSWORD: ${{ secrets.INIT_ROOT_PASSWORD }}
         run: |
           resource_group="$(az webapp list \
             --query "[?name=='itmd547-nocobase'].resourceGroup | [0]" \
@@ -78,13 +85,29 @@ jobs:
             --settings \
               APP_ENV=production \
               APP_PORT=8080 \
+              WEBSITES_PORT=8080 \
               SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-              ENABLE_ORYX_BUILD=false
+              ENABLE_ORYX_BUILD=false \
+              API_BASE_PATH=/api/ \
+              DB_LOGGING=off \
+              DB_DIALECT=postgres \
+              DB_PORT=5432 \
+              DB_DIALECT_OPTIONS_SSL_MODE=require \
+              DB_DIALECT_OPTIONS_SSL_REJECT_UNAUTHORIZED=false \
+              INIT_ROOT_EMAIL=admin@nocobase.com \
+              INIT_ROOT_NICKNAME="Super Admin" \
+              INIT_ROOT_USERNAME=nocobase \
+              APP_KEY="$APP_KEY" \
+              DB_HOST="$DB_HOST" \
+              DB_DATABASE="$DB_DATABASE" \
+              DB_USER="$DB_USER" \
+              DB_PASSWORD="$DB_PASSWORD" \
+              INIT_ROOT_PASSWORD="$INIT_ROOT_PASSWORD"
 
           az webapp config set \
             --name itmd547-nocobase \
             --resource-group "$resource_group" \
-            --startup-file "npm start"
+            --startup-file "bash startup.sh"
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
