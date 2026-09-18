@@ -111,20 +111,10 @@ jobs:
             --resource-group "$resource_group" \
             --startup-file "bash startup.sh"
 
-      - name: 'Deploy to Azure Web App (clean)'
-        shell: bash
-        run: |
-          # A clean deploy is required: previous deployments left a stale
-          # oryx-manifest.toml / node_modules.tar.gz in /home on the App
-          # Service, and a non-clean zip deploy merges on top of that
-          # instead of replacing it, so the container unpacks an outdated,
-          # incomplete node_modules missing the nocobase-v1 binary.
-          zip -r -q ../app.zip . -x ".git/*"
-
-          az webapp deploy \
-            --resource-group "$resource_group" \
-            --name itmd547-nocobase \
-            --src-path ../app.zip \
-            --type zip \
-            --clean true \
-            --restart true
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'itmd547-nocobase'
+          slot-name: 'Production'
+          package: .
