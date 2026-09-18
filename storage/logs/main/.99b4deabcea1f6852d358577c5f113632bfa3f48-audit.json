@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\tieso\\Downloads\\IIT\\ITMD547\\Nocobase-ITMD547\\storage\\logs\\main\\.99b4deabcea1f6852d358577c5f113632bfa3f48-audit.json",
+    "files": [
+        {
+            "date": 1789760813988,
+            "name": "C:\\Users\\tieso\\Downloads\\IIT\\ITMD547\\Nocobase-ITMD547\\storage\\logs\\main\\system_error_2026-09-18.log",
+            "hash": "b3131371bf780daa727758359fc9b2e61946c9882d3fec55e7da156484accf83"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -5,7 +5,6 @@ es/
 .env
 .env.test
 .env.e2e
-!.env.e2e.example
 .DS_Store
 yarn-error.log
 lerna-debug.log
@@ -21,13 +20,3 @@ docs-dist/
 dist/
 /docker/**/storage
 /storage/.app-dev
-
-# Local configuration and runtime data
-.env.*
-!.env.example
-/storage/apps/
-/storage/logs/
-/storage/db/*
-!/storage/db/.gitkeep
-/storage/uploads/*
-!/storage/uploads/.gitkeep
