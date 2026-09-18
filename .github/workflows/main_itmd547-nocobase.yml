@@ -105,10 +105,38 @@ jobs:
           # deployments never linger and get mixed into the new one.
           zip -r -q ../app.zip . -x ".git/*"
 
+          # --async avoids a synchronous HTTP request that Azure's front end
+          # gateway kills with a 504 once the (large) zip takes too long for
+          # Kudu to process, so we poll deployment status separately below.
           az webapp deploy \
             --resource-group "$resource_group" \
             --name itmd547-nocobase \
             --src-path ../app.zip \
             --type zip \
             --clean true \
-            --restart true
+            --restart true \
+            --async true
+
+          echo "Polling deployment status..."
+          for i in $(seq 1 120); do
+            status="$(az webapp deployment list \
+              --resource-group "$resource_group" \
+              --name itmd547-nocobase \
+              --query "[0].status" \
+              --output tsv)"
+            echo "[$i] deployment status=$status"
+
+            # Kudu deployment status: 0=Pending 1=Building 2=Deploying 3=Failed 4=Success
+            if [ "$status" = "4" ]; then
+              echo "Deployment succeeded."
+              exit 0
+            fi
+            if [ "$status" = "3" ]; then
+              echo "Deployment failed." >&2
+              exit 1
+            fi
+            sleep 15
+          done
+
+          echo "Timed out waiting for deployment to complete." >&2
+          exit 1
