@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy Node.js app to Azure Web App - itmd547-nocobase
 
 on:
@@ -13,8 +10,8 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -41,57 +38,6 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AE4933D15EF44C91A1607D9B3B3517BA }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4AD8AA1DD47949E19BEB9FAF6E926E5E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_6F625E0D2F1D494BA9B5D5C07ED8205B }}
-
-      - name: Configure App Service startup
-        shell: bash
-        env:
-          APP_KEY: ${{ secrets.APP_KEY }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          INIT_ROOT_PASSWORD: ${{ secrets.INIT_ROOT_PASSWORD }}
-        run: |
-          resource_group="$(az webapp list \
-            --query "[?name=='itmd547-nocobase'].resourceGroup | [0]" \
-            --output tsv)"
-
-          if [ -z "$resource_group" ]; then
-            echo "App Service 'itmd547-nocobase' was not found in the authenticated subscription." >&2
-            exit 1
-          fi
-
-          echo "resource_group=$resource_group" >> "$GITHUB_ENV"
-
-          az webapp config appsettings set \
-            --name itmd547-nocobase \
-            --resource-group "$resource_group" \
-            --settings \
-              APP_ENV=production \
-              APP_PORT=8080 \
-              WEBSITES_PORT=8080 \
-              SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-              ENABLE_ORYX_BUILD=false \
-              API_BASE_PATH=/api/ \
-              DB_LOGGING=off \
-              DB_DIALECT=postgres \
-              DB_PORT=5432 \
-              DB_DIALECT_OPTIONS_SSL_MODE=require \
-              DB_DIALECT_OPTIONS_SSL_REJECT_UNAUTHORIZED=false \
-              INIT_ROOT_EMAIL=admin@nocobase.com \
-              INIT_ROOT_NICKNAME="Super Admin" \
-              INIT_ROOT_USERNAME=nocobase \
-              APP_KEY="$APP_KEY" \
-              DB_HOST="$DB_HOST" \
-              DB_DATABASE="$DB_DATABASE" \
-              DB_USER="$DB_USER" \
-              DB_PASSWORD="$DB_PASSWORD" \
-              INIT_ROOT_PASSWORD="$INIT_ROOT_PASSWORD"
-
-          az webapp config set \
-            --name itmd547-nocobase \
-            --resource-group "$resource_group" \
-            --startup-file "bash startup.sh"
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
